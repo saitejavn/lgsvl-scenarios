@@ -1,8 +1,8 @@
 import lgsvl
 import time
 import json
-
 from lgsvl.geometry import Vector, Transform
+import os
 
 # Simulation Configuration
 SIMULATOR_HOST = "127.0.0.1"
@@ -49,7 +49,7 @@ for waypoint in scenario_waypoints['agent_2']:
                                                        waypoint['timestamp']))
 
 # Connect to simulator
-sim = lgsvl.Simulator(SIMULATOR_HOST, 8181)
+sim = lgsvl.Simulator(os.environ.get("SIMULATOR_HOST", "127.0.0.1"), 8181)
 
 # Set the map scene
 if sim.current_scene == scenario_config['map']:
