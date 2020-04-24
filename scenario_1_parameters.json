@@ -1,0 +1,21 @@
+{
+  "scenario_id": 1,
+  "ego": {
+    "initial_speed": 10,
+    "distance_to_intersection": 20
+  },
+  "agent_1": {
+    "initial_speed": 10,
+    "distance_to_intersection": 20,
+    "intersection_approach_speed": 10,
+    "intersection_inside_speed": 10,
+    "initial_lateral_position": 0,
+    "intersection_approach_lateral_position": 0,
+    "intersection_inside_lateral_position": 0
+  },
+  "agent_2": {
+    "initial_speed": 10,
+    "distance_to_intersection": 20,
+    "initial_lateral_position": 0
+  }
+}

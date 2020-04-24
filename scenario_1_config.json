@@ -1,0 +1,48 @@
+{
+  "scenario_id": 1,
+  "map": "BorregasAve",
+  "ego_vehicle" : "Lincoln2017MKZ (Apollo 5.0)",
+  "ego_intersection": {
+    "transform": {
+      "position": {
+        "x": -6.700272,
+        "y": -1.926125,
+        "z": 1.748038
+      },
+      "rotation": {
+        "x": 179.491,
+        "y": 106.304,
+        "z": -7.730941
+      }
+    }
+  },
+  "agent_2_intersection": {
+    "transform": {
+      "position": {
+        "x": -30.3782,
+        "y": -1.951178,
+        "z": 5.902245
+      },
+      "rotation": {
+        "x": 0.301,
+        "y": 105.532,
+        "z": -1.382
+      }
+    }
+  },
+  "agent_1_intersection": {
+    "transform": {
+      "position": {
+        "x": -31.46246,
+        "y": -2.040497,
+        "z": 2.334152
+      },
+      "rotation": {
+        "x": 0.301,
+        "y": 105.532,
+        "z": -1.382
+      }
+    }
+  }
+}
+

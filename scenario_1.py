@@ -1,34 +1,98 @@
 import lgsvl
+import time
+import json
+
+from lgsvl.geometry import Vector, Transform
 
 # Simulation Configuration
-SIMULATOR_HOST = "localhost"
-BRIDGE_HOST = "localhost"
-MAP = "BorregasAve"
+SIMULATOR_HOST = "127.0.0.1"
+BRIDGE_HOST = "127.0.0.1"
+SIM_INITIALIZE_TIME = 10
+SIM_TIME_LIMIT = 300
 
-# Scenario Configuration
-# EGO
-EGO_INITIAL_SPEED = 20
-EGO_DISTANCE_TO_INTERSECTION = 50
+# scenario configuration
+with open('scenario_1_config.json') as json_file:
+    scenario_config = json.load(json_file)
 
-# AGENT 1
-AGENT_1_INITIAL_DISTANCE_TO_INTERSECTION = 50
-AGENT_1_INITIAL_SPEED = 20
-AGENT_1_SPEED_INTERSECTION_APPROACH = 20
-AGENT_1_SPEED_INSIDE_INTERSECTION_ = 10
-AGENT_1_LATERAL_POSITION_INITIAL = 0
-AGENT_1_LATERAL_POSITION_INSIDE_INTERSECTION = 0
-AGENT_1_LATERAL_POSITION_INTERSECTION_APPROACH = 0
+with open('scenario_1_parameters.json') as json_file:
+    scenario_parameters = json.load(json_file)
 
-# AGENT 2
-AGENT_2_LATERAL_POSITION_INITIAL = 0
-AGENT_2_INITIAL_SPEED = 20
-AGENT_2_DISTANCE_TO_INTERSECTION = 50
+# Intersections
+ego_intersection_transform = Transform.from_json(scenario_config["ego_intersection"]['transform'])
+agent_1_intersection_transform = Transform.from_json(scenario_config["agent_1_intersection"]['transform'])
+agent_2_intersection_transform = Transform.from_json(scenario_config["agent_2_intersection"]['transform'])
+
+# Waypoints
+with open('scenario_1_waypoints.json') as json_file:
+    scenario_waypoints = json.load(json_file)
+
+# Agent 1 Way Points
+agent_1_waypoints = []
+for waypoint in scenario_waypoints['agent_1']:
+    agent_1_waypoints.append(lgsvl.agent.DriveWaypoint(Vector.from_json(waypoint['position']),
+                                                       waypoint['speed'],
+                                                       Vector.from_json(waypoint['angle']),
+                                                       waypoint['idle'],
+                                                       waypoint['deactivate'],
+                                                       waypoint['trigger_distance'],
+                                                       waypoint['timestamp']))
+
+# Agent 2 Way Points
+agent_2_waypoints = []
+for waypoint in scenario_waypoints['agent_2']:
+    agent_2_waypoints.append(lgsvl.agent.DriveWaypoint(Vector.from_json(waypoint['position']),
+                                                       waypoint['speed'],
+                                                       Vector.from_json(waypoint['angle']),
+                                                       waypoint['idle'],
+                                                       waypoint['deactivate'],
+                                                       waypoint['trigger_distance'],
+                                                       waypoint['timestamp']))
 
 # Connect to simulator
 sim = lgsvl.Simulator(SIMULATOR_HOST, 8181)
 
 # Set the map scene
-if sim.current_scene == MAP:
+if sim.current_scene == scenario_config['map']:
     sim.reset()
 else:
-    sim.load(MAP)
+    sim.load(scenario_config['map'])
+
+# Set initial time of the day for the simulation
+sim.set_time_of_day(12)
+
+# spawn EGO
+ego_initial_state = lgsvl.AgentState()
+ego_initial_state.transform = \
+    sim.map_point_on_lane(ego_intersection_transform.position
+                          - (scenario_parameters['ego']["distance_to_intersection"]
+                             * lgsvl.utils.transform_to_forward(ego_intersection_transform)))
+ego = sim.add_agent(scenario_config['ego_vehicle'], lgsvl.AgentType.EGO, ego_initial_state)
+ego.connect_bridge(BRIDGE_HOST, 9090)
+
+# Spawn Agents
+# Agent 1
+agent_1_initial_state = lgsvl.AgentState()
+agent_1_initial_state.transform = \
+    sim.map_point_on_lane(agent_1_intersection_transform.position
+                          - (scenario_parameters['agent_1']["distance_to_intersection"]
+                             * lgsvl.utils.transform_to_forward(agent_1_intersection_transform)))
+agent_1 = sim.add_agent("Sedan", lgsvl.AgentType.NPC, agent_1_initial_state)
+agent_1.follow(agent_1_waypoints)
+
+# Agent 2
+agent_2_initial_state = lgsvl.AgentState()
+agent_2_initial_state.transform = \
+    sim.map_point_on_lane(agent_2_intersection_transform.position
+                          - (scenario_parameters['agent_2']["distance_to_intersection"]
+                             * lgsvl.utils.transform_to_forward(agent_2_intersection_transform)))
+agent_2 = sim.add_agent("Sedan", lgsvl.AgentType.NPC, agent_2_initial_state)
+agent_2.follow(agent_1_waypoints)
+
+# Run Simulation
+t0 = time.time()
+sim.run(SIM_INITIALIZE_TIME)
+while True:
+    sim.run(0.5)
+
+    if (time.time() - t0) > SIM_TIME_LIMIT:
+        break
