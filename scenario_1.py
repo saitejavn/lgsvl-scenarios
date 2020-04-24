@@ -1,4 +1,5 @@
 import lgsvl
+import os
 
 # Simulation Configuration
 SIMULATOR_HOST = "localhost"
@@ -25,7 +26,7 @@ AGENT_2_INITIAL_SPEED = 20
 AGENT_2_DISTANCE_TO_INTERSECTION = 50
 
 # Connect to simulator
-sim = lgsvl.Simulator(SIMULATOR_HOST, 8181)
+sim = lgsvl.Simulator(os.environ.get("SIMULATOR_HOST", "127.0.0.1"), 8181)
 
 # Set the map scene
 if sim.current_scene == MAP:
