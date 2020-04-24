@@ -1,0 +1,80 @@
+import lgsvl
+import os
+import json
+
+# Simulation Configuration
+SIMULATOR_HOST = "localhost"
+BRIDGE_HOST = "localhost"
+MAP = "BorregasAve"
+SPEED = 6
+AGENT1_INTERSECTION_POSITION = lgsvl.Vector(-31.46246, -2.040497, 2.334152)
+AGENT1_INTERSECTION_ROTATION = lgsvl.Vector(0.301, 105.532, -1.382)
+AGENT2_INTERSECTION_POSITION = lgsvl.Vector(-6.700272, -1.926125, 1.7)
+AGENT2_INTERSECTION_ROTATION = lgsvl.Vector(179.491, 106.304, -7.730941)
+
+def Waypoint_collector(pos, rot):
+    #spawn the npc vehicle on intersection
+    state = lgsvl.AgentState()
+    state.transform.position = pos
+    state.transform.rotation = rot
+    npc = sim.add_agent("Sedan", lgsvl.AgentType.NPC, state)
+
+    #creating a list of waypoint for the npc vehicle
+    waypoints = []
+    npc.follow_closest_lane(True, SPEED)
+    sim.run(0.5)
+
+    #waypoint collector
+    for i in range(20):
+        tf = npc.transform
+        wp = lgsvl.DriveWaypoint(tf.position, speed=SPEED,
+                                 angle=tf.rotation, idle=5)
+        waypoints.append(wp)
+        sim.run(0.1)
+
+    sim.remove_agent(npc)
+    return waypoints
+
+
+def Waypoint_follow_test(waypoints, pos, rot):
+    state = lgsvl.AgentState()
+    state.transform.position = pos
+    state.transform.rotation = rot
+    npc = sim.add_agent("Sedan", lgsvl.AgentType.NPC, state)
+    npc.follow(waypoints)
+    sim.run(10)
+
+
+# Connect to simulator
+sim = lgsvl.Simulator(os.environ.get("SIMULATOR_HOST", "127.0.0.1"), 8181)
+
+# Set the map scene
+if sim.current_scene == MAP:
+    sim.reset()
+else:
+    sim.load(MAP)
+
+waypoints_dic = {}
+
+waypoints_dic["Agent1"] =[{
+        "position": wp.position.to_json(),
+        "speed": wp.speed,
+        "angle": wp.angle.to_json(),
+        "idle": wp.idle,
+        "deactivate": wp.deactivate,
+        "trigger_distance": wp.trigger_distance,
+        "timestamp": wp.timestamp
+      } for wp in Waypoint_collector(AGENT1_INTERSECTION_POSITION, AGENT1_INTERSECTION_ROTATION)]
+
+waypoints_dic["Agent2"] = [{
+        "position": wp.position.to_json(),
+        "speed": wp.speed,
+        "angle": wp.angle.to_json(),
+        "idle": wp.idle,
+        "deactivate": wp.deactivate,
+        "trigger_distance": wp.trigger_distance,
+        "timestamp": wp.timestamp
+      } for wp in Waypoint_collector(AGENT2_INTERSECTION_POSITION, AGENT2_INTERSECTION_ROTATION)]
+
+with open('agent_waypoints.json', 'w') as fp:
+    json.dump(waypoints_dic, fp, indent=4)
