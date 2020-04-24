@@ -11,10 +11,10 @@ SIM_INITIALIZE_TIME = 2
 SIM_TIME_LIMIT = 30
 
 # scenario configuration
-with open('scenario_1_config.json') as json_file:
+with open('config.json') as json_file:
     scenario_config = json.load(json_file)
 
-with open('scenario_1_parameters.json') as json_file:
+with open('parameters.json') as json_file:
     scenario_parameters = json.load(json_file)
 
 # Intersections
@@ -23,7 +23,7 @@ agent_1_intersection_transform = Transform.from_json(scenario_config["agent_1_in
 agent_2_intersection_transform = Transform.from_json(scenario_config["agent_2_intersection"]['transform'])
 
 # Waypoints
-with open('scenario_1_waypoints.json') as json_file:
+with open('waypoints.json') as json_file:
     scenario_waypoints = json.load(json_file)
 
 # Agent 1 Way Points
