@@ -7,8 +7,8 @@ import os
 # Simulation Configuration
 SIMULATOR_HOST = "127.0.0.1"
 BRIDGE_HOST = "127.0.0.1"
-SIM_INITIALIZE_TIME = 10
-SIM_TIME_LIMIT = 300
+SIM_INITIALIZE_TIME = 2
+SIM_TIME_LIMIT = 30
 
 # scenario configuration
 with open('scenario_1_config.json') as json_file:
@@ -77,7 +77,7 @@ agent_1_initial_state.transform = \
                           - (scenario_parameters['agent_1']["distance_to_intersection"]
                              * lgsvl.utils.transform_to_forward(agent_1_intersection_transform)))
 agent_1 = sim.add_agent("Sedan", lgsvl.AgentType.NPC, agent_1_initial_state)
-agent_1.follow(agent_1_waypoints)
+
 
 # Agent 2
 agent_2_initial_state = lgsvl.AgentState()
@@ -86,13 +86,15 @@ agent_2_initial_state.transform = \
                           - (scenario_parameters['agent_2']["distance_to_intersection"]
                              * lgsvl.utils.transform_to_forward(agent_2_intersection_transform)))
 agent_2 = sim.add_agent("Sedan", lgsvl.AgentType.NPC, agent_2_initial_state)
-agent_2.follow(agent_1_waypoints)
+
 
 # Run Simulation
 t0 = time.time()
 sim.run(SIM_INITIALIZE_TIME)
+agent_1.follow(agent_1_waypoints)
+agent_2.follow(agent_2_waypoints)
 while True:
-    sim.run(0.5)
-
+    sim.run(1)
+    time.sleep(0.1)
     if (time.time() - t0) > SIM_TIME_LIMIT:
         break
