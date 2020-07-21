@@ -3,6 +3,7 @@
 * This repository contains code for running scenarios for adversarial testing of Autonomous Vehicles using the open source photorealistic simulator [LGSVL](https://www.lgsvlsimulator.com/).
 * The Perception, Prediction, Planning and Control is done by the AD stack Apollo which communicates with the simulator using the Cyber RT bridge.
 * The example scenario is taken from the follwing research work:
+
 [1] *Simulation-based Adversarial Test Generation for Autonomous Vehicles with Machine Learning Components*  
 C.E. Tuncali, G. Fainekos, H. Ito, J. Kapinski,  
 IEEE Intelligent Vehicles Symposium, 2018  
